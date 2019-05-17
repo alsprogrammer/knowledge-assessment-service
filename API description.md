@@ -40,3 +40,27 @@ elements like figures, diagrams or even some programming code to run as
 Coursera assessments do.
 
 And the response is a list of elements the testee marked as correct.
+
+## The API description
+
+Here is the description of the JSON-API functions. The first level is the entity, the second - method.
+
+* topic
+    * add
+    * update
+    * delete
+* stem
+    * add
+    * update
+    * delete
+* option
+    * add
+    * update
+    * delete
+* assessment_module
+    * add
+    * deprecate
+    * delete
+* assessment
+    * build
+    * evaluate_answers
