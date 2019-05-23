@@ -12,22 +12,22 @@ import java.util.Optional;
 
 @Singleton
 public class JRPCAssessmentService implements IAssessmentService {
-    private final IStorage storage;
+    private final IAssessmentService service;
 
     @Inject
-    public JRPCAssessmentService(IStorage storage) {
-        this.storage = storage;
+    public JRPCAssessmentService(IAssessmentService service) {
+        this.service = service;
     }
 
     @Override
     @JsonRpcMethod
     public Optional<Assessment> getAssessmentById(String id) {
-        return storage.getAssessmentById(id);
+        return service.getAssessmentById(id);
     }
 
     @Override
     @JsonRpcMethod
     public Assessment generateAssessment(List<String> topicIds) {
-        return null;
+        return service.generateAssessment(topicIds);
     }
 }
