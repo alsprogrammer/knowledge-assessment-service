@@ -1,4 +1,4 @@
-# API Description
+Control of components with limited resource# API Description
 
 This document describes the API for the system. The system is based on JSON-RPC v.2.
 
