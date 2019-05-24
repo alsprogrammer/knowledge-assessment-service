@@ -30,7 +30,7 @@ public class JRPCAssessmentService implements IAssessmentService {
     }
 
     @Override
-    public String createTask(String stemText, Optional<String> stemImageBase64, Optional<String> topicIdToAddTo) {
+    public String createTask(String stemText, Optional<String> stemImageBase64, String topicIdToAddTo) {
         return null;
     }
 

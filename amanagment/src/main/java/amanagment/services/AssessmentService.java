@@ -46,7 +46,7 @@ public class AssessmentService implements IAssessmentService {
         }
 
         TaskElement.TaskElementBuilder stem = TaskElement.builder().text(stemText);
-        
+
         stemImageBase64.ifPresent(image -> {
             Optional<Image> existingImage = storage.getImageById(IdGenerator.generateId(image));
             if (existingImage.isPresent()) {
