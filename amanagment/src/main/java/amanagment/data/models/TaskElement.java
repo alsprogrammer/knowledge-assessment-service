@@ -6,10 +6,9 @@ import lombok.*;
 import java.util.UUID;
 
 @Data
-@NoArgsConstructor
-abstract class TaskElement {
+@Builder
+public class TaskElement {
     private final String id = IdGenerator.generateId(this);
-    @NonNull
     private String text;
     private String imageId;
 }

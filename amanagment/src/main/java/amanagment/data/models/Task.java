@@ -13,9 +13,9 @@ import java.util.Set;
 public class Task {
     private final String id = IdGenerator.generateId(this);
     @NonNull
-    private Stem stem;
+    private TaskElement stem;
     @Singular
-    private final Set<Option> options = new HashSet<>();
+    private final Set<TaskElement> options = new HashSet<>();
     @Singular
     private final Set<String> answerIds = new HashSet<>();
     @Singular

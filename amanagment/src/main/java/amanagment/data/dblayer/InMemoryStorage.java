@@ -11,8 +11,8 @@ import java.util.Optional;
 public class InMemoryStorage implements IStorage {
     private final List<Assessment> assessments = new ArrayList<>();
     private final List<Image> images = new ArrayList<>();
-    private final List<Option> options = new ArrayList<>();
-    private final List<Stem> stems = new ArrayList<>();
+    private final List<TaskElement> options = new ArrayList<>();
+    private final List<TaskElement> stems = new ArrayList<>();
     private final List<Task> tasks = new ArrayList<>();
     private final List<Topic> topics = new ArrayList<>();
 
@@ -57,7 +57,7 @@ public class InMemoryStorage implements IStorage {
     }
 
     @Override
-    public Optional<Option> getOptionById(String id) {
+    public Optional<TaskElement> getOptionById(String id) {
         return Optional.empty();
     }
 
@@ -68,21 +68,6 @@ public class InMemoryStorage implements IStorage {
 
     @Override
     public boolean deleteOption(String id) {
-        return false;
-    }
-
-    @Override
-    public Optional<Stem> getStemById(String id) {
-        return Optional.empty();
-    }
-
-    @Override
-    public boolean putStem(Stem stem) {
-        return false;
-    }
-
-    @Override
-    public boolean deleteStem(String id) {
         return false;
     }
 
