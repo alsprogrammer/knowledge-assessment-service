@@ -1,6 +1,7 @@
 package amanagment.services;
 
 import amanagment.data.dblayer.IStorage;
+import amanagment.data.exceptions.EntityExistsException;
 import amanagment.data.generators.IdGenerator;
 import amanagment.data.models.*;
 import org.apache.commons.lang3.StringUtils;
@@ -18,13 +19,15 @@ public class AssessmentService implements IAssessmentService {
     }
 
     @Override
-    public String addTopic(String name, Optional<String> parentTopicId) {
+    public String addTopic(String name, Optional<String> parentTopicId) throws EntityExistsException {
         if (StringUtils.isBlank(name))
             throw new IllegalArgumentException("The name of the topic have to be provided");
 
-        Topic.TopicBuilder topicBuilder = Topic.builder().name(name);
-        parentTopicId.ifPresent(topicBuilder::parentTopicId);
-        Topic newlyCreatedTopic = topicBuilder.build();
+        if (storage.findTopicByName(name).size() > 0)
+            throw new EntityExistsException("Topic already exists");
+
+        Topic newlyCreatedTopic = Topic.builder().name(name).parentTopicId(parentTopicId).build();
+
         storage.putTopic(newlyCreatedTopic);
 
         return newlyCreatedTopic.getId();

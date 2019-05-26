@@ -4,13 +4,14 @@ import amanagment.data.generators.IdGenerator;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Data
 @Builder(toBuilder = true)
 public class Topic {
     private final String id = IdGenerator.generateId(this);
-    private String parentTopicId;
+    private Optional<String> parentTopicId;
     @NonNull
     private String name;
     @Singular
