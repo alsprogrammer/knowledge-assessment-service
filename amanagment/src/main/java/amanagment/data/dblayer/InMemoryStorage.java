@@ -6,6 +6,7 @@ import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Singleton
 public class InMemoryStorage implements IStorage {

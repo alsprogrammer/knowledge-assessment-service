@@ -8,8 +8,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
-public class Assessment {
+@Value
+public class Assessment implements IModel {
     private final String id = IdGenerator.generateId(this);
     private final Instant creationInstant = Clock.systemUTC().instant();
     @NonNull
@@ -18,4 +18,9 @@ public class Assessment {
     private Testee testee;
     @Singular
     private final List<Task> tasks = new ArrayList<>();
+
+    @Override
+    public String getIdPrefix() {
+        return "AS";
+    }
 }

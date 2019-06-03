@@ -2,6 +2,7 @@ package amanagment.jsonrpc.services;
 
 import amanagment.data.dblayer.IStorage;
 import amanagment.data.models.Assessment;
+import amanagment.data.models.Image;
 import amanagment.services.IAssessmentService;
 import com.github.arteam.simplejsonrpc.core.annotation.JsonRpcMethod;
 
@@ -20,7 +21,7 @@ public class JRPCAssessmentService implements IAssessmentService {
     }
 
     @Override
-    public String addTopic(String name, Optional<String> parentTopicId) {
+    public String addTopic(String name, String parentTopicId) {
         return null;
     }
 
@@ -30,7 +31,7 @@ public class JRPCAssessmentService implements IAssessmentService {
     }
 
     @Override
-    public String createTask(String stemText, Optional<String> stemImageBase64, String topicIdToAddTo) {
+    public String createTask(String stemText, Image stemImageBase64, String topicIdToAddTo) {
         return null;
     }
 

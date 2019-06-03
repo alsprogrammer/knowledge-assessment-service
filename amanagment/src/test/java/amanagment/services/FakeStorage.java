@@ -3,6 +3,7 @@ package amanagment.services;
 import amanagment.data.dblayer.IStorage;
 import amanagment.data.models.*;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -88,7 +89,7 @@ public class FakeStorage implements IStorage {
 
     @Override
     public Optional<Topic> getTopicById(String id) {
-        return Optional.empty();
+        return topics.stream().filter(t -> t.getId().equals(id)).findAny();
     }
 
     @Override
@@ -103,7 +104,9 @@ public class FakeStorage implements IStorage {
 
     @Override
     public boolean deleteTopic(String id) {
-        return false;
+        Optional<Topic> foundTopic = topics.stream().filter(t -> t.getId().equals(id)).findAny();
+        foundTopic.ifPresent(topics::remove);
+        return foundTopic.isPresent();
     }
 
     public List<Assessment> getAssessments() {

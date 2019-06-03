@@ -2,6 +2,7 @@ package amanagment.services;
 
 import amanagment.data.dblayer.IStorage;
 import amanagment.data.exceptions.EntityExistsException;
+import amanagment.data.exceptions.EntityNotExistsException;
 import amanagment.data.generators.IdGenerator;
 import amanagment.data.models.*;
 import org.apache.commons.lang3.StringUtils;
@@ -19,14 +20,23 @@ public class AssessmentService implements IAssessmentService {
     }
 
     @Override
-    public String addTopic(String name, Optional<String> parentTopicId) throws EntityExistsException {
+    public String addTopic(String name, String parentTopicId) throws EntityExistsException, EntityNotExistsException {
         if (StringUtils.isBlank(name))
             throw new IllegalArgumentException("The name of the topic have to be provided");
 
         if (storage.findTopicByName(name).size() > 0)
             throw new EntityExistsException("Topic already exists");
 
-        Topic newlyCreatedTopic = Topic.builder().name(name).parentTopicId(parentTopicId).build();
+        Topic.TopicBuilder newlyCreatedTopicBuilder = Topic.builder().name(name);
+        if (parentTopicId != null) {
+            Optional<Topic> topic = storage.getTopicById(parentTopicId);
+            if (topic.isPresent()) {
+                newlyCreatedTopicBuilder.parentTopicId(parentTopicId);
+            } else {
+                throw new EntityNotExistsException("Parent topic you want the new topic to add to, doesn't exist");
+            }
+        }
+        Topic newlyCreatedTopic = newlyCreatedTopicBuilder.build();
 
         storage.putTopic(newlyCreatedTopic);
 
@@ -39,7 +49,7 @@ public class AssessmentService implements IAssessmentService {
     }
 
     @Override
-    public String createTask(String stemText, Optional<String> stemImageBase64, String topicIdToAddTo) {
+    public String createTask(String stemText, Image stemImage, String topicIdToAddTo) throws EntityNotExistsException {
         if (StringUtils.isBlank(stemText)) {
             throw new IllegalArgumentException("The name of the task have to be provided");
         }
@@ -50,26 +60,46 @@ public class AssessmentService implements IAssessmentService {
 
         TaskElement.TaskElementBuilder stem = TaskElement.builder().text(stemText);
 
-        stemImageBase64.ifPresent(image -> {
-            Optional<Image> existingImage = storage.getImageById(IdGenerator.generateId(image));
+        if (stemImage != null) {
+            Optional<Image> existingImage = storage.getImageById(stemImage.getId());
             if (existingImage.isPresent()) {
                 stem.imageId(existingImage.get().getId());
             } else {
-                Image newImage = Image.builder().image(stemImageBase64.get()).build();
-                storage.putImage(newImage);
-                stem.imageId(newImage.getId());
+                storage.putImage(stemImage);
+                stem.imageId(stemImage.getId());
             }
-        });
+        }
 
         Task newTask = Task.builder().stem(stem.build()).build();
+        Optional<Topic> topic = storage.getTopicById(topicIdToAddTo);
+
+        if (topic.isPresent()) {
+            Topic foundTopic = topic.get();
+            foundTopic.getTasks().add(newTask);
+            storage.putTopic(foundTopic);
+        } else {
+            throw new EntityNotExistsException("The topic to add task to is not found");
+        }
+
         storage.putTask(newTask);
 
-        return null;
+        return newTask.getId();
     }
 
     @Override
-    public boolean removeTaskFromTopic(String taskId, String topicId) {
-        return false;
+    public boolean removeTaskFromTopic(String taskId, String topicId) throws EntityNotExistsException {
+        boolean ret = false;
+
+        Optional<Topic> topic = storage.getTopicById(topicId);
+        topic.orElseThrow(() -> new EntityNotExistsException(String.format("Topic %s doesn't exist",topicId)));
+
+        Topic t = topic.get();
+        Optional<Task> taskToDelete = t.getTasks().stream().filter(tsk -> tsk.getId().equals(taskId)).findAny();
+        taskToDelete.ifPresent(task -> t.getTasks().remove(task));
+        storage.putTopic(t);
+        ret = true;
+
+        return ret;
     }
 
     @Override
