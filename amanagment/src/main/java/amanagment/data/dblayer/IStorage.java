@@ -17,7 +17,7 @@ public interface IStorage {
     boolean deleteImage(String id);
 
     Optional<TaskElement> getOptionById(String id);
-    boolean putOption(Image image);
+    boolean putOption(TaskElement option);
     boolean deleteOption(String id);
 
     Optional<Task> getTaskById(String id);

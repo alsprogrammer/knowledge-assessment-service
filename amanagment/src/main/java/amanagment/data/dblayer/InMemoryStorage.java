@@ -63,7 +63,7 @@ public class InMemoryStorage implements IStorage {
     }
 
     @Override
-    public boolean putOption(Image image) {
+    public boolean putOption(TaskElement option) {
         return false;
     }
 

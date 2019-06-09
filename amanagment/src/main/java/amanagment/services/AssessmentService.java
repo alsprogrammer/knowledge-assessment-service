@@ -60,30 +60,43 @@ public class AssessmentService implements IAssessmentService {
 
         TaskElement.TaskElementBuilder stem = TaskElement.builder().text(stemText);
 
-        if (stemImage != null) {
-            Optional<Image> existingImage = storage.getImageById(stemImage.getId());
-            if (existingImage.isPresent()) {
-                stem.imageId(existingImage.get().getId());
-            } else {
-                storage.putImage(stemImage);
-                stem.imageId(stemImage.getId());
-            }
-        }
+        assignImageToStem(stem, stemImage);
 
         Task newTask = Task.builder().stem(stem.build()).build();
-        Optional<Topic> topic = storage.getTopicById(topicIdToAddTo);
 
-        if (topic.isPresent()) {
-            Topic foundTopic = topic.get();
-            foundTopic.getTasks().add(newTask);
-            storage.putTopic(foundTopic);
-        } else {
-            throw new EntityNotExistsException("The topic to add task to is not found");
-        }
+        assignTaskToTopic(newTask, topicIdToAddTo);
 
         storage.putTask(newTask);
 
         return newTask.getId();
+    }
+
+    private void assignImageToStem(TaskElement.TaskElementBuilder stemBuilder, Image stemImage) {
+        if (stemBuilder == null)
+            return;
+
+        if (stemImage == null)
+            return;
+
+        Optional<Image> existingImage = storage.getImageById(stemImage.getId());
+        if (existingImage.isPresent()) {
+            stemBuilder.imageId(existingImage.get().getId());
+        } else {
+            storage.putImage(stemImage);
+            stemBuilder.imageId(stemImage.getId());
+        }
+    }
+
+    private void assignTaskToTopic(Task task, String topicIdToAddTo) throws EntityNotExistsException {
+        Optional<Topic> topic = storage.getTopicById(topicIdToAddTo);
+
+        if (topic.isPresent()) {
+            Topic foundTopic = topic.get();
+            foundTopic.getTasks().add(task);
+            storage.putTopic(foundTopic);
+        } else {
+            throw new EntityNotExistsException("The topic to add task to is not found");
+        }
     }
 
     @Override

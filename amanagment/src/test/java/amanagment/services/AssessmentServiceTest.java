@@ -24,11 +24,11 @@ class AssessmentServiceTest {
     @Test
     void addTopic() throws EntityExistsException, EntityNotExistsException {
         FakeStorage fakeStorage = new FakeStorage();
-        AssessmentService as = new AssessmentService(fakeStorage);
+        AssessmentService assessmentService = new AssessmentService(fakeStorage);
 
         final String topicName = "New topic";
 
-        as.addTopic(topicName, null);
+        assessmentService.addTopic(topicName, null);
 
         assertEquals(1, fakeStorage.getTopics().size());
         assertEquals(topicName, fakeStorage.getTopics().get(0).getName());
@@ -38,13 +38,13 @@ class AssessmentServiceTest {
     @Test
     void addTopicWithParent() throws EntityExistsException, EntityNotExistsException {
         FakeStorage fakeStorage = new FakeStorage();
-        AssessmentService as = new AssessmentService(fakeStorage);
+        AssessmentService assessmentService = new AssessmentService(fakeStorage);
 
         final String topicName = "New topic";
         final String topicName1 = "New topic1";
 
-        String topicId = as.addTopic(topicName, null);
-        as.addTopic(topicName1, topicId);
+        String topicId = assessmentService.addTopic(topicName, null);
+        assessmentService.addTopic(topicName1, topicId);
 
         assertEquals(2, fakeStorage.getTopics().size());
         assertEquals(fakeStorage.getTopics().get(0).getName(), topicName);
@@ -54,28 +54,28 @@ class AssessmentServiceTest {
     @Test
     void addTopicWithExistingName() throws EntityExistsException, EntityNotExistsException {
         FakeStorage fakeStorage = new FakeStorage();
-        AssessmentService as = new AssessmentService(fakeStorage);
+        AssessmentService assessmentService = new AssessmentService(fakeStorage);
 
         final String topicName = "New topic";
 
-        as.addTopic(topicName, null);
+        assessmentService.addTopic(topicName, null);
 
         Assertions.assertThrows(EntityExistsException.class, () -> {
-            as.addTopic(topicName, null);
+            assessmentService.addTopic(topicName, null);
         });
     }
 
     @Test
     void removeTopic() {
         FakeStorage fakeStorage = new FakeStorage();
-        AssessmentService as = new AssessmentService(fakeStorage);
+        AssessmentService assessmentService = new AssessmentService(fakeStorage);
 
         Topic topicInStorage1 = Topic.builder().name("Existing topic").build();
         Topic topicInStorage2 = Topic.builder().name("Existing topic2").build();
         fakeStorage.getTopics().add(topicInStorage1);
         fakeStorage.getTopics().add(topicInStorage2);
 
-        boolean result = as.removeTopic(topicInStorage1.getId());
+        boolean result = assessmentService.removeTopic(topicInStorage1.getId());
 
         assertTrue(result);
         assertEquals(0, fakeStorage.getTopics().stream().filter(topic -> topic.getId().equals(topicInStorage1.getId())).count());
@@ -84,14 +84,14 @@ class AssessmentServiceTest {
     @Test
     void removeNonExistingTopic() {
         FakeStorage fakeStorage = new FakeStorage();
-        AssessmentService as = new AssessmentService(fakeStorage);
+        AssessmentService assessmentService = new AssessmentService(fakeStorage);
 
         Topic topicInStorage1 = Topic.builder().name("Existing topic").build();
         Topic topicInStorage2 = Topic.builder().name("Existing topic2").build();
         fakeStorage.getTopics().add(topicInStorage1);
         fakeStorage.getTopics().add(topicInStorage2);
 
-        boolean result = as.removeTopic(UUID.randomUUID().toString());
+        boolean result = assessmentService.removeTopic(UUID.randomUUID().toString());
 
         assertFalse(result);
         assertEquals(2, fakeStorage.getTopics().size());
@@ -100,7 +100,7 @@ class AssessmentServiceTest {
     @Test
     void addTaskToTopicWithoutImage() throws EntityNotExistsException{
         FakeStorage fakeStorage = new FakeStorage();
-        AssessmentService as = new AssessmentService(fakeStorage);
+        AssessmentService assessmentService = new AssessmentService(fakeStorage);
 
         String stemText = "Stem text";
         Image stemImage = null;
@@ -109,7 +109,7 @@ class AssessmentServiceTest {
         Topic topicInStorage = Topic.builder().name("Existing topic").build();
         fakeStorage.getTopics().add(topicInStorage);
 
-        taskId = as.createTask(stemText, stemImage, topicInStorage.getId());
+        taskId = assessmentService.createTask(stemText, stemImage, topicInStorage.getId());
 
 
         assertNotNull(taskId);
@@ -120,17 +120,21 @@ class AssessmentServiceTest {
     @Test
     void addTaskToTopicWithImage() throws EntityNotExistsException{
         FakeStorage fakeStorage = new FakeStorage();
-        AssessmentService as = new AssessmentService(fakeStorage);
+        AssessmentService assessmentService = new AssessmentService(fakeStorage);
 
         String stemText = "Stem text";
         String stemImageText = "abracadabra image";
         String stemImageCaption = "New image";
 
         Topic topicInStorage = Topic.builder().name("Existing topic").build();
-        fakeStorage.getTopics().add(topicInStorage);
+        try {
+            assessmentService.addTopic("Existing topic", null);
+        } catch (EntityExistsException e) {
+          System.out.println(e.getCause());
+        }
 
         Image image = Image.builder().caption(stemImageCaption).image(stemImageText).build();
-        String taskId = as.createTask(stemText, image, topicInStorage.getId());
+        String taskId = assessmentService.createTask(stemText, image, topicInStorage.getId());
 
 
         assertNotNull(taskId);
@@ -138,17 +142,23 @@ class AssessmentServiceTest {
         assertEquals(stemText, topicInStorage.getTasks().stream().filter(t -> t.getId().equals(taskId)).findFirst().get().getStem().getText());
     }
 
+    /////////
     @Test
     void removeTaskFromTopic() throws EntityNotExistsException{
         FakeStorage fakeStorage = new FakeStorage();
-        AssessmentService as = new AssessmentService(fakeStorage);
+        AssessmentService assessmentService = new AssessmentService(fakeStorage);
 
         String stemText = "Stem text";
         String stemImageText = "abracadabra image";
         String stemImageCaption = "New image";
 
         Topic topicInStorage = Topic.builder().name("Existing topic").build();
-        fakeStorage.getTopics().add(topicInStorage);
+
+        try {
+            assessmentService.addTopic("Existing topic", null);
+        } catch (EntityExistsException e) {
+            System.out.println(e.getCause());
+        }
 
         Image image = Image.builder().caption(stemImageCaption).image(stemImageText).build();
         TaskElement taskElement = TaskElement.builder().text(stemText).imageId(image.getId()).build();
@@ -156,7 +166,7 @@ class AssessmentServiceTest {
 
         fakeStorage.getTasks().add(task);
 
-        boolean result = as.removeTaskFromTopic(task.getId(), topicInStorage.getId());
+        boolean result = assessmentService.removeTaskFromTopic(task.getId(), topicInStorage.getId());
 
         assertTrue(result);
         assertEquals(0, topicInStorage.getTasks().size());

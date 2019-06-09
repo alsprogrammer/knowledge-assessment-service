@@ -22,7 +22,7 @@ public class Task implements IModel {
     public boolean addAnswer(String optionText) {
         boolean ret;
 
-        TaskElement newAnswer = TaskElement.builder().text(optionText).build();
+        TaskElement newAnswer = buildTaskElementWOImage(optionText);
         ret = options.add(newAnswer);
         if (ret)
             answerIds.add(newAnswer.getId());
@@ -33,7 +33,7 @@ public class Task implements IModel {
     public boolean addDistractor(String optionText) {
         boolean ret;
 
-        TaskElement newAnswer = TaskElement.builder().text(optionText).build();
+        TaskElement newAnswer = buildTaskElementWOImage(optionText);
         ret = options.add(newAnswer);
         if (ret)
             distractorIds.add(newAnswer.getId());
@@ -41,10 +41,14 @@ public class Task implements IModel {
         return ret;
     }
 
+    private TaskElement buildTaskElementWOImage(String text) {
+        return TaskElement.builder().text(text).build();
+    }
+
     public boolean addAnswer(String optionText, Image image) {
         boolean ret;
 
-        TaskElement newAnswer = TaskElement.builder().text(optionText).imageId(image.getId()).build();
+        TaskElement newAnswer = buildTaskElementWImage(optionText, image);
         ret = options.add(newAnswer);
         if (ret)
             answerIds.add(newAnswer.getId());
@@ -55,12 +59,16 @@ public class Task implements IModel {
     public boolean addDistractor(String optionText, Image image) {
         boolean ret;
 
-        TaskElement newAnswer = TaskElement.builder().text(optionText).imageId(image.getId()).build();
+        TaskElement newAnswer = buildTaskElementWImage(optionText, image);
         ret = options.add(newAnswer);
         if (ret)
             distractorIds.add(newAnswer.getId());
 
         return ret;
+    }
+
+    private TaskElement buildTaskElementWImage(String text, Image image) {
+        return TaskElement.builder().text(text).imageId(image.getId()).build();
     }
 
     public boolean removeOption(TaskElement optionToRemove){

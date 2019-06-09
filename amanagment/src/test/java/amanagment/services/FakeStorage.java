@@ -3,68 +3,90 @@ package amanagment.services;
 import amanagment.data.dblayer.IStorage;
 import amanagment.data.models.*;
 
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FakeStorage implements IStorage {
-    private final List<Assessment> assessments = new ArrayList<>();
-    private final List<Image> images = new ArrayList<>();
-    private final List<TaskElement> options = new ArrayList<>();
-    private final List<TaskElement> stems = new ArrayList<>();
-    private final List<Task> tasks = new ArrayList<>();
-    private final List<Topic> topics = new ArrayList<>();
+    private final Map<String, Assessment> assessments = new HashMap<>();
+    private final Map<String, Image> images = new HashMap<>();
+    private final Map<String, Task> tasks = new HashMap<>();
+    private final Map<String, Topic> topics = new HashMap<>();
 
     @Override
     public Optional<Assessment> getAssessmentById(String id) {
-        return Optional.empty();
+        return Optional.ofNullable(assessments.get(id));
     }
 
     @Override
     public List<Assessment> findAssessmentsByName(String name) {
-        return null;
+        return assessments.values().stream().filter(v -> v.getName().equals(name)).collect(Collectors.toList());
     }
 
     @Override
     public boolean putAssessment(Assessment assessment) {
-        return false;
+        return assessments.put(assessment.getId(), assessment) != null;
     }
 
     @Override
     public boolean deleteAssessment(String id) {
-        return false;
+        return assessments.remove(id) != null;
     }
 
     @Override
     public Optional<Image> getImageById(String id) {
-        return Optional.empty();
+        return Optional.ofNullable(images.get(id));
     }
 
     @Override
     public List<Image> findImagesByCaption(String caption) {
-        return null;
+        return images.values().stream().filter(i -> i.getCaption().equals(caption)).collect(Collectors.toList());
     }
 
     @Override
     public boolean putImage(Image image) {
-        return false;
+        return images.put(image.getId(), image) != null;
     }
 
     @Override
     public boolean deleteImage(String id) {
-        return false;
+        return images.remove(id) != null;
     }
 
     @Override
     public Optional<TaskElement> getOptionById(String id) {
-        return Optional.empty();
+        return tasks
+                .values()
+                .stream()
+                .map(Task::getOptions)
+                .flatMap(opts -> opts.stream())
+                .filter(opt -> opt.getId().equals(id))
+                .findAny();
     }
 
     @Override
-    public boolean putOption(Image image) {
-        return false;
+    public boolean putOption(TaskElement option) {
+        List<Task> tasksToUpdate = tasksContainOptionId(option.getId());
+
+        for (Task curTask: tasksToUpdate) {
+            Optional<TaskElement> optionToDelete = curTask.getOptions().stream().filter(opt -> opt.getId().equals(option.getId())).findAny();
+            optionToDelete.ifPresent(opt -> {
+                curTask.getOptions().remove(opt);
+                curTask.getOptions().add(option);
+            });
+        }
+
+        return tasksToUpdate.size() > 0;
+    }
+
+    private List<Task> tasksContainOptionId(String optionId) {
+        return tasks
+                .values()
+                .stream()
+                .filter(task -> task.getOptions()
+                        .stream()
+                        .map(TaskElement::getId)
+                        .anyMatch(id -> id.equals(optionId)))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -74,7 +96,7 @@ public class FakeStorage implements IStorage {
 
     @Override
     public Optional<Task> getTaskById(String id) {
-        return Optional.empty();
+        return Optional.ofNullable(tasks.get(id));
     }
 
     @Override
@@ -89,47 +111,47 @@ public class FakeStorage implements IStorage {
 
     @Override
     public Optional<Topic> getTopicById(String id) {
-        return topics.stream().filter(t -> t.getId().equals(id)).findAny();
+        return topics.values().stream().filter(t -> t.getId().equals(id)).findAny();
     }
 
     @Override
     public List<Topic> findTopicByName(String name) {
-        return topics.parallelStream().filter(topic -> topic.getName().equals(name)).collect(Collectors.toList());
+        return topics.values().parallelStream().filter(topic -> topic.getName().equals(name)).collect(Collectors.toList());
     }
 
     @Override
     public boolean putTopic(Topic topic) {
-        return topics.add(topic);
+        return topics.put(topic.getId(), topic) != null;
     }
 
     @Override
     public boolean deleteTopic(String id) {
-        Optional<Topic> foundTopic = topics.stream().filter(t -> t.getId().equals(id)).findAny();
+        Optional<Topic> foundTopic = topics.values().stream().filter(t -> t.getId().equals(id)).findAny();
         foundTopic.ifPresent(topics::remove);
         return foundTopic.isPresent();
     }
 
     public List<Assessment> getAssessments() {
-        return assessments;
+        return new ArrayList<>(assessments.values());
     }
 
     public List<Image> getImages() {
-        return images;
+        return new ArrayList<>(images.values());
     }
 
     public List<TaskElement> getOptions() {
-        return options;
+        return tasks.values().stream().map(Task::getOptions).flatMap(tasks -> tasks.stream()).collect(Collectors.toList());
     }
 
     public List<TaskElement> getStems() {
-        return stems;
+        return tasks.values().stream().map(Task::getStem).collect(Collectors.toList());
     }
 
     public List<Task> getTasks() {
-        return tasks;
+        return new ArrayList<>(tasks.values());
     }
 
     public List<Topic> getTopics() {
-        return topics;
+        return new ArrayList<>(topics.values());
     }
 }
