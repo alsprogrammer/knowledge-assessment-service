@@ -7,10 +7,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class FakeStorage implements IStorage {
-    private final Map<String, Assessment> assessments = new HashMap<>();
-    private final Map<String, Image> images = new HashMap<>();
-    private final Map<String, Task> tasks = new HashMap<>();
-    private final Map<String, Topic> topics = new HashMap<>();
+    public final Map<String, Assessment> assessments = new HashMap<>();
+    public final Map<String, Image> images = new HashMap<>();
+    public final Map<String, Task> tasks = new HashMap<>();
+    public final Map<String, Topic> topics = new HashMap<>();
 
     @Override
     public Optional<Assessment> getAssessmentById(String id) {
@@ -111,7 +111,7 @@ public class FakeStorage implements IStorage {
 
     @Override
     public Optional<Topic> getTopicById(String id) {
-        return topics.values().stream().filter(t -> t.getId().equals(id)).findAny();
+        return Optional.ofNullable(topics.get(id));
     }
 
     @Override
@@ -126,9 +126,7 @@ public class FakeStorage implements IStorage {
 
     @Override
     public boolean deleteTopic(String id) {
-        Optional<Topic> foundTopic = topics.values().stream().filter(t -> t.getId().equals(id)).findAny();
-        foundTopic.ifPresent(topics::remove);
-        return foundTopic.isPresent();
+        return topics.remove(id) != null;
     }
 
     public List<Assessment> getAssessments() {

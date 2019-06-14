@@ -101,8 +101,6 @@ public class AssessmentService implements IAssessmentService {
 
     @Override
     public boolean removeTaskFromTopic(String taskId, String topicId) throws EntityNotExistsException {
-        boolean ret = false;
-
         Optional<Topic> topic = storage.getTopicById(topicId);
         topic.orElseThrow(() -> new EntityNotExistsException(String.format("Topic %s doesn't exist",topicId)));
 
@@ -110,9 +108,8 @@ public class AssessmentService implements IAssessmentService {
         Optional<Task> taskToDelete = t.getTasks().stream().filter(tsk -> tsk.getId().equals(taskId)).findAny();
         taskToDelete.ifPresent(task -> t.getTasks().remove(task));
         storage.putTopic(t);
-        ret = true;
 
-        return ret;
+        return taskToDelete.isPresent();
     }
 
     @Override
