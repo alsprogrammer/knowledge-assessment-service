@@ -1,5 +1,6 @@
 package amanagment.data.models;
 
+import amanagment.data.generators.IdGenerator;
 import lombok.*;
 
 import java.time.Clock;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Value
 public class Assessment implements IModel {
-    private final String id = generateId();
+    private final String id = IdGenerator.generateId(this);
     private final Instant creationInstant = Clock.systemUTC().instant();
     @NonNull
     private String name;

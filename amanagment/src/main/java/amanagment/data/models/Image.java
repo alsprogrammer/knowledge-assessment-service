@@ -1,5 +1,6 @@
 package amanagment.data.models;
 
+import amanagment.data.generators.IdGenerator;
 import com.google.common.hash.Hashing;
 import lombok.*;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -20,13 +21,6 @@ public class Image implements IModel {
         this.image = builder.image;
     }
 
-    @Override
-    public String generateId() {
-        return getIdPrefix() + Hashing.sha256()
-                .hashString(image, StandardCharsets.UTF_8)
-                .toString();
-    }
-
     public static ImageBuilder builder() {
         return new ImageBuilder();
     }
@@ -36,12 +30,24 @@ public class Image implements IModel {
         return "IM";
     }
 
-    public static class ImageBuilder {
+    public static class ImageBuilder implements IModel {
         private String id;
         private String caption;
         private String image;
 
         public ImageBuilder() {
+        }
+
+        @Override
+        public String getIdPrefix() {
+            return "IM";
+        }
+
+        @Override
+        public String getUniqueId() {
+            return Hashing.sha256()
+                    .hashString(image, StandardCharsets.UTF_8)
+                    .toString();
         }
 
         public ImageBuilder caption(String caption) {
@@ -55,9 +61,7 @@ public class Image implements IModel {
         }
 
         public Image build() {
-            this.id = "IM" + Hashing.sha256()
-                    .hashString(image, StandardCharsets.UTF_8)
-                    .toString();
+            this.id = IdGenerator.generateId(this);
             return new Image(this);
         }
     }
