@@ -1,6 +1,5 @@
 package amanagment.data.models;
 
-import amanagment.data.generators.IdGenerator;
 import lombok.*;
 
 import java.util.HashSet;
@@ -9,7 +8,7 @@ import java.util.Set;
 @Data
 @Builder(toBuilder = true)
 public class Task implements IModel {
-    private final String id = IdGenerator.generateId(this);
+    private final String id = generateId();
     @NonNull
     private TaskElement stem;
     @Singular
