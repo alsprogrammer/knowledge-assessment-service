@@ -10,6 +10,6 @@ public class IdGenerator {
     private final String idTemplate = "%s%s";
 
     public String generateId(IModel model) {
-        return String.format(idTemplate, model.getIdPrefix(), UUID.randomUUID().toString());
+        return String.format(idTemplate, model.getIdPrefix(), model.getUniqueId());
     }
 }
